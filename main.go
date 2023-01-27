@@ -9,10 +9,6 @@ import (
 	"github.com/go-chi/httplog"
 )
 
-// 守るリソース ... セミに関する情報
-// semis エンドポイントにアクセスすると、トークンによって違う情報がもらえる
-// アブラゼミ, ミンミンゼミ、クマゼミ、ニイニイゼミ、ツクツクボウシ
-
 const bearer_length = len("Bearer ")
 
 type semiResource struct {
