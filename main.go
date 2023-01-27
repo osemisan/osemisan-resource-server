@@ -15,6 +15,21 @@ import (
 
 const bearer_length = len("Bearer ")
 
+type semiResource struct {
+	// セミの名前
+	name string
+	// セミの体長
+	length string
+}
+
+var semiResources = []semiResource{
+	{"アブラゼミ", "5cm"},
+	{"ミンミンゼミ", "3.5cm"},
+	{"クマゼミ", "7cm"},
+	{"ニイニイゼミ", "2cm"},
+	{"ツクツクボウシ", "4.5cm"},
+}
+
 func getToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		oplog := httplog.LogEntry(r.Context())
