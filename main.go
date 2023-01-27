@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,10 +17,11 @@ const bearer_length = len("Bearer ")
 
 func getToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		oplog := httplog.LogEntry(r.Context())
 		auth := r.Header["Authorization"][0]
 		token := auth[bearer_length:]
 
-		log.Println("Incoming token:", token)
+		oplog.Info().Msgf("Incoming token: %s", token)
 
 		new_r := r.WithContext(context.WithValue(r.Context(), "key", "value"))
 		next.ServeHTTP(w, new_r)
