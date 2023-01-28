@@ -8,14 +8,6 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
-type SemiScopes struct {
-	Abura      bool
-	Minmin     bool
-	Kuma       bool
-	Niinii     bool
-	Tsukutsuku bool
-}
-
 func VerifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		oplog := httplog.LogEntry(r.Context())
@@ -27,25 +19,42 @@ func VerifyToken(next http.Handler) http.Handler {
 			return
 		}
 
-		scopes, exists := verifiedToken.Get("scopes")
+		sAbura, exists := verifiedToken.Get("scopeAbura")
 		if !exists {
-			oplog.Warn().Msg("\"scopes\" not found from the token")
+			oplog.Warn().Msg("\"sAbura\" not found from the token")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		sMinmin, exists := verifiedToken.Get("scopeMinmin")
+		if !exists {
+			oplog.Warn().Msg("\"sAbura\" not found from the token")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		sKuma, exists := verifiedToken.Get("scopeKuma")
+		if !exists {
+			oplog.Warn().Msg("\"sAbura\" not found from the token")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		sNiinii, exists := verifiedToken.Get("scopeNiinii")
+		if !exists {
+			oplog.Warn().Msg("\"sAbura\" not found from the token")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		sTsukutsuku, exists := verifiedToken.Get("scopeTsukutuku")
+		if !exists {
+			oplog.Warn().Msg("\"sAbura\" not found from the token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		s, ok := scopes.(SemiScopes)
-		if !ok {
-			oplog.Warn().Msg("\"scopes\" isn't valid semi permissions form")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		c := context.WithValue(r.Context(), "abura", s.Abura)
-		c = context.WithValue(c, "minmin", s.Minmin)
-		c = context.WithValue(c, "kuma", s.Kuma)
-		c = context.WithValue(c, "niinii", s.Niinii)
-		c = context.WithValue(c, "tsukutsuku", s.Tsukutsuku)
+		c := context.WithValue(r.Context(), "abura", sAbura)
+		c = context.WithValue(c, "minmin", sMinmin)
+		c = context.WithValue(c, "kuma", sKuma)
+		c = context.WithValue(c, "niinii", sNiinii)
+		c = context.WithValue(c, "tsukutsuku", sTsukutsuku)
 
 		new_r := r.WithContext(c)
 
