@@ -109,6 +109,18 @@ func TestVerifyToken(t *testing.T) {
 			http.StatusOK,
 			scopes{true, false, false, false, false},
 		},
+		{
+			"アブラゼミとミンミンゼミだけ閲覧可能なスコープが付与されている",
+			BuildScopedJwt(t, scopes{true, true, false, false, false}),
+			http.StatusOK,
+			scopes{true, true, false, false, false},
+		},
+		{
+			"何も閲覧できないスコープが付与されている",
+			BuildScopedJwt(t, scopes{false, false, false, false, false}),
+			http.StatusOK,
+			scopes{false, false, false, false, false},
+		},
 	}
 
 	for _, tt := range tests {
