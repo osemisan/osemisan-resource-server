@@ -10,8 +10,6 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
-const bearer_length = len("Bearer ")
-
 type semiResource struct {
 	// セミの名前
 	name string
