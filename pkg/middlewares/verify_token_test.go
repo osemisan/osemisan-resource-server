@@ -7,9 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/lestrrat-go/jwx/v2/jwa"
+	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/osemisan/osemisan-resource-server/pkg/middlewares"
 )
+
+const symKey = "hoge"
 
 type scopes struct {
 	abura      bool
@@ -34,7 +38,15 @@ func BuildSimpleJwt(t *testing.T) string {
 	if err != nil {
 		t.Error("Failed to build JWT", err)
 	}
-	return fmt.Sprintf("Bearer %s", tok)
+	key, err := jwk.FromRaw([]byte(symKey))
+	if err != nil {
+		t.Error("Failed to create key from raw", err)
+	}
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, key))
+	if err != nil {
+		t.Error("Failed to sign token", err)
+	}
+	return fmt.Sprintf("Bearer %s", signed)
 }
 
 func BuildScopedJwt(t *testing.T, s struct {
@@ -56,7 +68,15 @@ func BuildScopedJwt(t *testing.T, s struct {
 	if err != nil {
 		t.Error("Failed to build JWT", err)
 	}
-	return fmt.Sprintf("Bearer %s", tok)
+	key, err := jwk.FromRaw([]byte("hoge"))
+	if err != nil {
+		t.Error("Failed to create key from raw", err)
+	}
+	signed, err := jwt.Sign(tok, jwt.WithKey(jwa.HS256, key))
+	if err != nil {
+		t.Error("Failed to sign token", err)
+	}
+	return fmt.Sprintf("Bearer %s", signed)
 }
 
 func TestVerifyToken(t *testing.T) {
@@ -86,7 +106,7 @@ func TestVerifyToken(t *testing.T) {
 		{
 			"アブラゼミだけ閲覧可能なスコープが付与されている",
 			BuildScopedJwt(t, scopes{true, false, false, false, false}),
-			http.StatusAccepted,
+			http.StatusOK,
 			scopes{true, false, false, false, false},
 		},
 	}
