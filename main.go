@@ -34,7 +34,7 @@ type semiScopes struct {
 	tsukutsuku bool
 }
 
-func getToken(next http.Handler) http.Handler {
+func verifyToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		oplog := httplog.LogEntry(r.Context())
 
@@ -75,10 +75,15 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(httplog.RequestLogger(l))
-	r.Use(getToken)
+	r.Use(verifyToken)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
 	})
+
+	r.Get("/resources", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("osemisan"))
+	})
+
 	http.ListenAndServe(":9002", r)
 }
