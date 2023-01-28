@@ -8,12 +8,12 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
-type semiScopes struct {
-	abura      bool
-	minmin     bool
-	kuma       bool
-	niinii     bool
-	tsukutsuku bool
+type SemiScopes struct {
+	Abura      bool
+	Minmin     bool
+	Kuma       bool
+	Niinii     bool
+	Tsukutsuku bool
 }
 
 func VerifyToken(next http.Handler) http.Handler {
@@ -22,7 +22,7 @@ func VerifyToken(next http.Handler) http.Handler {
 
 		verifiedToken, err := jwt.ParseRequest(r)
 		if err != nil {
-			oplog.Err(err).Msgf("failed to verify token from HTTP request.", err)
+			oplog.Err(err).Msg("failed to verify token from HTTP request.")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -34,18 +34,18 @@ func VerifyToken(next http.Handler) http.Handler {
 			return
 		}
 
-		s, ok := scopes.(semiScopes)
+		s, ok := scopes.(SemiScopes)
 		if !ok {
 			oplog.Warn().Msg("\"scopes\" isn't valid semi permissions form")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		c := context.WithValue(r.Context(), "abura", s.abura)
-		c = context.WithValue(c, "minmin", s.minmin)
-		c = context.WithValue(c, "kuma", s.kuma)
-		c = context.WithValue(c, "niinii", s.niinii)
-		c = context.WithValue(c, "tsukutsuku", s.tsukutsuku)
+		c := context.WithValue(r.Context(), "abura", s.Abura)
+		c = context.WithValue(c, "minmin", s.Minmin)
+		c = context.WithValue(c, "kuma", s.Kuma)
+		c = context.WithValue(c, "niinii", s.Niinii)
+		c = context.WithValue(c, "tsukutsuku", s.Tsukutsuku)
 
 		new_r := r.WithContext(c)
 
