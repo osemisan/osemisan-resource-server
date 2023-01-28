@@ -29,10 +29,22 @@ func TestResourcesHandler(t *testing.T) {
 		wantJson       string
 	}{
 		{
-			"アブラゼミのみが閲覧できるトークに対してアブラゼミだけのレスポンス",
+			"アブラゼミのみが閲覧できるトークンに対してアブラゼミだけのレスポンス",
 			testutil.BuildScopedJwt(t, testutil.Scopes{Abura: true, Minmin: false, Kuma: false, Niinii: false, Tsukutsuku: false}),
 			http.StatusOK,
 			`[{"name":"アブラゼミ","length":"5cm"}]`,
+		},
+		{
+			"アブラゼミとミンミンゼミが閲覧できるトークンに対してその２つを含むレスポンス",
+			testutil.BuildScopedJwt(t, testutil.Scopes{Abura: true, Minmin: true, Kuma: false, Niinii: false, Tsukutsuku: false}),
+			http.StatusOK,
+			`[{"name":"アブラゼミ","length":"5cm"},{"name":"ミンミンゼミ","length":"3.5cm"}]`,
+		},
+		{
+			"何も閲覧できないトークンに対して何も含まないレスポンス",
+			testutil.BuildScopedJwt(t, testutil.Scopes{Abura: false, Minmin: false, Kuma: false, Niinii: false, Tsukutsuku: false}),
+			http.StatusOK,
+			`[]`,
 		},
 	}
 
