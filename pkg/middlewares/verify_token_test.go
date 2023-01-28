@@ -1,10 +1,13 @@
 package middlewares_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/osemisan/osemisan-resource-server/pkg/middlewares"
 )
 
@@ -13,6 +16,17 @@ func GetTestHandler() http.HandlerFunc {
 		w.Write([]byte("ok"))
 	}
 	return fn
+}
+
+func BuildJwt(t *testing.T) string {
+	tok, err := jwt.NewBuilder().
+		Issuer(`github.com/osemisan/osemisan-resource-server`).
+		IssuedAt(time.Now()).
+		Build()
+	if err != nil {
+		t.Error("Failed to build JWT", err)
+	}
+	return fmt.Sprintf("Bearer %s", tok)
 }
 
 func TestVerifyToken(t *testing.T) {
@@ -30,6 +44,12 @@ func TestVerifyToken(t *testing.T) {
 		{
 			"リクエストヘッダからJWTが読み出せなかった401",
 			"invalid-token",
+			http.StatusUnauthorized,
+			middlewares.SemiScopes{},
+		},
+		{
+			"JWTを読み解くことはできたが、scopesが含まれていないとき401",
+			BuildJwt(t),
 			http.StatusUnauthorized,
 			middlewares.SemiScopes{},
 		},
