@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -79,7 +78,6 @@ func main() {
 	r.Use(getToken)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("key:", r.Context().Value("key"))
 		w.Write([]byte("welcome"))
 	})
 	http.ListenAndServe(":9002", r)
