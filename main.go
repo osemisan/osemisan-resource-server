@@ -41,18 +41,21 @@ func verifyToken(next http.Handler) http.Handler {
 		verifiedToken, err := jwt.ParseRequest(r)
 		if err != nil {
 			oplog.Err(err).Msgf("failed to verify token from HTTP request.", err)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		scopes, exists := verifiedToken.Get("scopes")
 		if !exists {
 			oplog.Warn().Msg("\"scopes\" not found from the token")
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		s, ok := scopes.(semiScopes)
 		if !ok {
 			oplog.Warn().Msg("\"scopes\" isn't valid semi permissions form")
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
