@@ -41,7 +41,7 @@ type Scopes struct {
 }
 
 func BuildScopedJwt(t *testing.T, s Scopes) string {
-	scopes := make([]string, 5, 5)
+	scopes := make([]string, 0, 5)
 	if s.Abura {
 		scopes = append(scopes, "abura")
 	}
