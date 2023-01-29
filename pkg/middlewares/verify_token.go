@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/httplog"
 	"github.com/lestrrat-go/jwx/v2/jwa"
@@ -30,42 +31,28 @@ func VerifyToken(next http.Handler) http.Handler {
 			return
 		}
 
-		sAbura, exists := verifiedToken.Get("scopeAbura")
+		rawScope, exists := verifiedToken.Get("scope")
 		if !exists {
-			oplog.Warn().Msg("\"scopeAbura\" not found from the token")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		sMinmin, exists := verifiedToken.Get("scopeMinmin")
-		if !exists {
-			oplog.Warn().Msg("\"scopeMinmin\" not found from the token")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		sKuma, exists := verifiedToken.Get("scopeKuma")
-		if !exists {
-			oplog.Warn().Msg("\"scopeKuma\" not found from the token")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		sNiinii, exists := verifiedToken.Get("scopeNiinii")
-		if !exists {
-			oplog.Warn().Msg("\"scopeNiinii\" not found from the token")
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		sTsukutsuku, exists := verifiedToken.Get("scopeTsukutsuku")
-		if !exists {
-			oplog.Warn().Msg("\"scopeTsukutsuku\" not found from the token")
+			oplog.Warn().Msg("\"scope\" does not exists in the token")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		c := context.WithValue(r.Context(), "abura", sAbura)
-		c = context.WithValue(c, "minmin", sMinmin)
-		c = context.WithValue(c, "kuma", sKuma)
-		c = context.WithValue(c, "niinii", sNiinii)
-		c = context.WithValue(c, "tsukutsuku", sTsukutsuku)
+		strScope, ok := rawScope.(string)
+		if !ok {
+			oplog.Warn().Msg("\"scope\" isn't string")
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		scopes := strings.Split(strScope, " ")
+
+		c := r.Context()
+		for _, scope := range scopes {
+			if scope == "abura" || scope == "minmin" || scope == "kuma" || scope == "niinii" || scope == "tsukutsuku" {
+				c = context.WithValue(c, scope, true)
+			}
+		}
 
 		new_r := r.WithContext(c)
 

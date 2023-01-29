@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -40,14 +41,26 @@ type Scopes struct {
 }
 
 func BuildScopedJwt(t *testing.T, s Scopes) string {
+	scopes := make([]string, 5, 5)
+	if s.Abura {
+		scopes = append(scopes, "abura")
+	}
+	if s.Minmin {
+		scopes = append(scopes, "minmin")
+	}
+	if s.Kuma {
+		scopes = append(scopes, "kuma")
+	}
+	if s.Niinii {
+		scopes = append(scopes, "niinii")
+	}
+	if s.Tsukutsuku {
+		scopes = append(scopes, "tsukutsuku")
+	}
 	tok, err := jwt.NewBuilder().
 		Issuer(`github.com/osemisan/osemisan-resource-server`).
 		IssuedAt(time.Now()).
-		Claim("scopeAbura", s.Abura).
-		Claim("scopeMinmin", s.Minmin).
-		Claim("scopeKuma", s.Kuma).
-		Claim("scopeNiinii", s.Niinii).
-		Claim("scopeTsukutsuku", s.Tsukutsuku).
+		Claim("scope", strings.Join(scopes, " ")).
 		Build()
 	if err != nil {
 		t.Error("Failed to build JWT", err)
